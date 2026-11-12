@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechVision AI - Texnik Qurilmalarni Tanuvchi Multimediya Tizimi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Lighting Effects -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- APPLICATION HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-group">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1 class="logo-title">TechVision AI</h1>
+          <p class="logo-subtitle">Texnik Qurilmalarni Tanish va Tahlil Qilish Multimediya Tizimi</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="subject-badge">🎓 Multimediya Texnologiyalari</span>
+        <button class="api-key-btn" id="openSettingsBtn" title="Gemini AI Vision API sozlamalari">
+          <span>⚙️ Gemini AI API</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTENT -->
+  <main class="main-content">
+    
+    <!-- LEFT PANEL: CAPTURE & SCANNER -->
+    <section class="card-panel">
+      <!-- Navigation Tabs -->
+      <div class="nav-tabs">
+        <button class="tab-btn active" data-tab="camera">
+          <span>📹 Jonli Kamera</span>
+        </button>
+        <button class="tab-btn" data-tab="upload">
+          <span>📁 Rasm Yuklash</span>
+        </button>
+        <button class="tab-btn" data-tab="catalog">
+          <span>📚 Barcha Qurilmalar</span>
+        </button>
+        <button class="tab-btn" data-tab="quiz">
+          <span>🎯 Bilimni Sinash</span>
+        </button>
+        <button class="tab-btn" data-tab="resistor-calc">
+          <span>🎨 Rezistor Kalkulyatori</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: CAMERA VIEW -->
+      <div id="tabContent-camera">
+        <div class="scanner-viewport" id="viewport">
+          <video id="cameraVideo" autoplay playsinline muted></video>
+          <img id="imagePreview" alt="Kamera surati" />
+          
+          <!-- Scan HUD and Laser -->
+          <div class="scan-laser" id="scanLaser"></div>
+          <div class="scanner-reticle" id="reticle">
+            <span class="reticle-corner c-tl"></span>
+            <span class="reticle-corner c-tr"></span>
+            <span class="reticle-corner c-bl"></span>
+            <span class="reticle-corner c-br"></span>
+          </div>
+
+          <div class="camera-placeholder" id="cameraPlaceholder">
+            <div class="placeholder-icon">📷</div>
+            <h3>Qurilmani kameraga ko'rsating</h3>
+            <p>Kamerani yoqing yoki namunaviy qurilmalardan birini tanlang</p>
+          </div>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="controls-bar">
+          <button class="btn btn-primary" id="startCameraBtn">
+            <span>🔴 Kamerani Yoqish</span>
+          </button>
+          <button class="btn btn-secondary" id="captureBtn" style="display:none;">
+            <span>📸 Skanerlash & Tahlil</span>
+          </button>
+          <button class="btn btn-secondary" id="switchCameraBtn" style="display:none;">
+            <span>🔄 Kamerani Almashish</span>
+          </button>
+          <button class="btn btn-secondary" id="stopCameraBtn" style="display:none;">
+            <span>⏹️ To'xtatish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: UPLOAD VIEW -->
+      <div id="tabContent-upload" style="display:none;">
+        <div class="dropzone-area" id="dropZone">
+          <div class="placeholder-icon">📤</div>
+          <h3>Qurilma rasmini shu yerga tashlang</h3>
+          <p>yoki kompyuterdan tanlash uchun bu yerni bosing (JPG, PNG, WEBP)</p>
+          <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+        </div>
+        <div class="controls-bar" style="margin-top: 1rem;">
+          <button class="btn btn-primary" id="browseFileBtn">
+            <span>📂 Fayl tanlash</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: CATALOG VIEW -->
+      <div id="tabContent-catalog" style="display:none;">
+        <input type="text" id="catalogSearchInput" class="modal-input" placeholder="🔍 Qurilma nomini qidiring (masalan: Arduino, RAM, Protsessor)..." style="margin-bottom: 8px;">
+        <div class="catalog-grid" id="catalogList">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- TAB 4: QUIZ VIEW -->
+      <div id="tabContent-quiz" style="display:none;">
+        <div class="quiz-container">
+          <div class="quiz-question-box" id="quizQuestion">
+            Savol yuklanmoqda...
+          </div>
+          <div class="quiz-options" id="quizOptions">
+            <!-- Dynamically populated options -->
+          </div>
+          <div class="controls-bar" style="margin-top: 1.25rem;">
+            <button class="btn btn-secondary" id="nextQuizBtn">
+              <span>Keyingi savol ➡️</span>
+            </button>
+            <span id="quizScoreBadge" style="margin-left: auto; font-size: 0.9rem; color: var(--primary);">Natija: 0 / 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: RESISTOR COLOR CODE CALCULATOR -->
+      <div id="tabContent-resistor-calc" style="display:none;">
+        <div class="quiz-container">
+          <h3 style="font-size: 1rem; color: #38bdf8; margin-bottom: 8px;">🎨 4-Halqali Rezistor Qarshiligini Hisoblash</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Ranglarni tanlang va haqiqiy qarshilik qiymatini bir zumda hisoblang:</p>
+
+          <!-- SVG Visual Resistor -->
+          <div style="text-align: center; margin: 15px 0;">
+            <svg width="240" height="60" viewBox="0 0 240 60">
+              <!-- Leads -->
+              <line x1="10" y1="30" x2="50" y2="30" stroke="#94a3b8" stroke-width="4" />
+              <line x1="190" y1="30" x2="230" y2="30" stroke="#94a3b8" stroke-width="4" />
+              <!-- Resistor body -->
+              <path d="M 50 15 Q 60 30 50 45 L 190 45 Q 180 30 190 15 Z" fill="#d4a373" stroke="#b08968" stroke-width="2" />
+              <!-- Color Bands -->
+              <rect id="svgBand1" x="75" y="15" width="10" height="30" fill="#8b5a2b" />
+              <rect id="svgBand2" x="105" y="18" width="10" height="24" fill="#000000" />
+              <rect id="svgBand3" x="135" y="18" width="10" height="24" fill="#ff7f00" />
+              <rect id="svgBand4" x="165" y="15" width="10" height="30" fill="#ffd700" />
+            </svg>
+          </div>
+
+          <!-- Color Selectors -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
+            <div>
+              <label>1-Halqa (1-raqam):</label>
+              <select id="band1Select" class="modal-input" style="padding: 6px; margin-top: 4px;">
+                <option value="1">Jigarrang (1)</option>
+                <option value="2">Qizil (2)</option>
+                <option value="3">Apelsin (3)</option>
+                <option value="4">Sariq (4)</option>
+                <option value="5">Yashil (5)</option>
+                <option value="6">Moviy (6)</option>
+                <option value="7">Binafsha (7)</option>
+                <option value="8">Kulrang (8)</option>
+                <option value="9">Oq (9)</option>
+              </select>
+            </div>
+            <div>
+              <label>2-Halqa (2-raqam):</label>
+              <select id="band2Select" class="modal-input" style="padding: 6px; margin-top: 4px;">
+                <option value="0" selected>Qora (0)</option>
+                <option value="1">Jigarrang (1)</option>
+                <option value="2">Qizil (2)</option>
+                <option value="3">Apelsin (3)</option>
+                <option value="4">Sariq (4)</option>
+                <option value="5">Yashil (5)</option>
+                <option value="6">Moviy (6)</option>
+                <option value="7">Binafsha (7)</option>
+                <option value="8">Kulrang (8)</option>
+                <option value="9">Oq (9)</option>
+              </select>
+            </div>
+            <div>
+              <label>3-Halqa (Ko'paytiruvchi):</label>
+              <select id="band3Select" class="modal-input" style="padding: 6px; margin-top: 4px;">
+                <option value="1">Qora (x1)</option>
+                <option value="10">Jigarrang (x10)</option>
+                <option value="100">Qizil (x100)</option>
+                <option value="1000" selected>Apelsin (x1 kΩ)</option>
+                <option value="10000">Sariq (x10 kΩ)</option>
+                <option value="100000">Yashil (x100 kΩ)</option>
+                <option value="1000000">Moviy (x1 MΩ)</option>
+              </select>
+            </div>
+            <div>
+              <label>4-Halqa (Aniqlik):</label>
+              <select id="band4Select" class="modal-input" style="padding: 6px; margin-top: 4px;">
+                <option value="5" selected>Oltin (±5%)</option>
+                <option value="10">Kumush (±10%)</option>
+                <option value="1">Jigarrang (±1%)</option>
+                <option value="2">Qizil (±2%)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Calculated Resistance Result -->
+          <div style="margin-top: 12px; padding: 12px; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 10px; text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">HISOBLANGAN QARSHILIK:</div>
+            <div id="calcResValue" style="font-size: 1.4rem; font-weight: 800; color: #38bdf8; font-family: var(--font-mono);">10 kΩ ±5%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAMPLES / QUICK DEMO CHIPS -->
+      <div class="samples-bar">
+        <div class="samples-title">⚡ Tezkor Namuna Qurilmalarni Sinash:</div>
+        <div class="samples-chips">
+          <button class="sample-chip" data-id="arduino_uno">🔌 Arduino Uno</button>
+          <button class="sample-chip" data-id="raspberry_pi">🍓 Raspberry Pi</button>
+          <button class="sample-chip" data-id="motherboard">🖲️ Ona plata</button>
+          <button class="sample-chip" data-id="cpu">🔲 Markaziy Protsessor</button>
+          <button class="sample-chip" data-id="ram">🎛️ Operativ xotira (RAM)</button>
+          <button class="sample-chip" data-id="gpu">🎮 Videokarta (GPU)</button>
+          <button class="sample-chip" data-id="multimeter">📟 Raqamli Multimetr</button>
+          <button class="sample-chip" data-id="soldering_iron">🔥 Kavsharlagich (Payalnik)</button>
+          <button class="sample-chip" data-id="resistor">〰️ Rezistor</button>
+          <button class="sample-chip" data-id="capacitor">🔋 Kondensator</button>
+          <button class="sample-chip" data-id="esp32">📡 ESP32 Wi-Fi</button>
+          <button class="sample-chip" data-id="ultrasonic_sensor">🦇 Masofa datchigi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: DETAILED IDENTIFICATION & STRUCTURE -->
+    <section class="card-panel" id="resultContainer">
+      <!-- EMPTY STATE -->
+      <div class="empty-result" id="emptyResult">
+        <div class="empty-icon">🔬</div>
+        <h3>Tahlil Natijalari Shu Yerda Ko'rinadi</h3>
+        <p>Qurilmani kameraga ko'rsatib <b>"Skanerlash & Tahlil"</b> tugmasini bosing, rasm yuklang yoki namunaviy qurilmani tanlang.</p>
+      </div>
+
+      <!-- ACTIVE RESULT CONTENT -->
+      <div id="deviceResult" style="display:none;">
+        <!-- Header: Title and Category -->
+        <div class="result-header">
+          <div class="device-name-badge">
+            <div class="device-icon-box" id="resIcon">🔌</div>
+            <div>
+              <h2 class="device-title" id="resTitle">Arduino Uno</h2>
+              <div class="device-category" id="resCategory">Mikrokontrollerlar va Robototexnika</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);" id="resEnTitle">Arduino Uno R3</div>
+            </div>
+          </div>
+          <button class="btn btn-secondary" id="printReportBtn" title="Hisobotni chop etish yoki PDF saqlash">
+            <span>🖨️ Chop etish / PDF</span>
+          </button>
+        </div>
+
+        <!-- MULTIMEDIA AUDIO EXPLANATION -->
+        <div class="audio-action-card">
+          <div class="audio-info">
+            <span class="audio-pulse" id="audioPulse"></span>
+            <div>
+              <div class="audio-label">🔊 Multimediya Ovozli Tushuntirish</div>
+              <div class="audio-sublabel">Sun'iy intellekt diktori orqali ovoz bilan eshiting</div>
+            </div>
+          </div>
+          <canvas id="audioVisualizer" width="100" height="32" style="border-radius: 6px; background: rgba(0,0,0,0.4); display: none;"></canvas>
+          <button class="btn-speech" id="speakBtn">
+            <span id="speakIcon">▶️</span>
+            <span id="speakText">Ovoz chiqarib aytish</span>
+          </button>
+        </div>
+
+        <!-- 1. VAZIFASI (NIMA QILADI?) -->
+        <div class="info-section">
+          <div class="section-headline">
+            <i>⚙️</i> Qurilmaning Vazifasi (Nima qiladi?)
+          </div>
+          <p class="info-text" id="resPurpose">
+            Yuklanmoqda...
+          </p>
+        </div>
+
+        <!-- 2. ISHLASH PRINSIPI -->
+        <div class="info-section">
+          <div class="section-headline">
+            <i>⚡</i> Ishlash Prinsipi
+          </div>
+          <p class="info-text" id="resHowItWorks">
+            Yuklanmoqda...
+          </p>
+        </div>
+
+        <!-- 3. TUZILISHI (QISMLARI VA ELEMENTLARI) -->
+        <div class="info-section">
+          <div class="section-headline">
+            <i>🧩</i> Qurilmaning Tuzilishi va Tarkibiy Qismlari
+          </div>
+          <div class="structure-list" id="resStructure">
+            <!-- Dynamically populated parts -->
+          </div>
+        </div>
+
+        <!-- 4. TEXNIK PARAMETRLARI -->
+        <div class="info-section">
+          <div class="section-headline">
+            <i>📊</i> Asosiy Texnik Ko'rsatkichlari (Xarakteristikalari)
+          </div>
+          <table class="specs-table" id="resSpecsTable">
+            <tbody>
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 5. QO'LLANILISH SOHASI -->
+        <div class="info-section">
+          <div class="section-headline">
+            <i>🎯</i> Qo'llanilish Sohalari
+          </div>
+          <p class="info-text" id="resApplications">
+            Yuklanmoqda...
+          </p>
+        </div>
+
+        <!-- 6. ULASH SXEMASI (WIRING) -->
+        <div class="info-section" id="resWiringSection" style="display:none;">
+          <div class="section-headline">
+            <i>🔌</i> Sxematik Ulanish Tartibi (Pinout / Wiring)
+          </div>
+          <p class="info-text" id="resWiringText" style="white-space: pre-line; font-family: var(--font-mono); font-size: 0.88rem;">
+            -
+          </p>
+        </div>
+
+        <!-- 7. NAMUNAVIY DASTUR KODI -->
+        <div class="info-section" id="resCodeSection" style="display:none;">
+          <div class="section-headline" style="display: flex; justify-content: space-between; align-items: center;">
+            <span><i>💻</i> Namunaviy Dastur Kodi</span>
+            <button class="btn btn-secondary" id="copyCodeBtn" style="font-size: 0.75rem; padding: 4px 10px;">📋 Nusxalash</button>
+          </div>
+          <pre class="code-box" id="resCodeBlock"><code></code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- GEMINI API SETTINGS MODAL -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Google Gemini Vision AI Sozlamalari</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        Dasturda oflayn rejimda barcha asosiy texnik qurilmalar bazasi mavjud. Agar siz istalgan, hattoki noma'lum mikrosxema va kamyob elektron platalarni to'g'ridan-to'g'ri AI orqali real vaqtda taniy olmoqchi bo'lsangiz, bepul Google Gemini API kalitini kiritishingiz mumkin:
+      </p>
+      <input type="password" id="geminiApiKeyInput" class="modal-input" placeholder="AIzaSy..." />
+      <div style="font-size: 0.75rem; color: #38bdf8; margin-bottom: 1rem;">
+        💡 Kalit faqat sizning brauzeringizda (LocalStorage) saqlanadi. (aistudio.google.com saytidan bepul olish mumkin)
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-secondary" id="closeSettingsBtn">Bekor qilish</button>
+        <button class="btn btn-primary" id="saveApiKeyBtn">Saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-msg" id="toastMsg">Xabar matni</div>
+
+  <!-- Hidden Canvas for frame capture -->
+  <canvas id="captureCanvas" style="display: none;"></canvas>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet" defer></script>
+  <script src="devices_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
